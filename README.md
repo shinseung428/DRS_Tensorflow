@@ -1,2 +1,3 @@
-# BigGAN-Tensorflow
-Tensorflow implementation of BigGAN
+# Rejection Sampling Tensorflow
+Tensorflow implementation of SAGAN + Rejection Sampling
+
