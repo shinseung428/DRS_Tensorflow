@@ -81,9 +81,6 @@ class SAGAN():
     def generator(self, z, name='generator'):
         nets=[]
         with tf.variable_scope(name) as scope: 
-            # net = deconv2d(z, 512, [4,4], spec_norm=True, name="deconv_1")
-            # net = norm(net, 'batch_norm', name='bn1')
-            # net = tf.nn.relu(net)
             net = tf.reshape(fc(z, 4*4*512, name="linear"), [-1, 4, 4, 512])
             net = norm(net, 'batch_norm', name='bn1')
             net = tf.nn.relu(net)

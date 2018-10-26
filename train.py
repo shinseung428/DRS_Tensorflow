@@ -4,9 +4,6 @@ from config import *
 from SAGAN import *
 from ops import *
 
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
-
 FLAGS = tf.app.flags.FLAGS
 
 def train(model):
@@ -53,7 +50,6 @@ def train(model):
                       model.lr : learning_rate*4,
                       }
 
-            # last few epochs used to train the discriminator(sigmoid layer)
             summary, d_loss, _ = model.sess.run([all_summary, model.d_loss, model.d_optim],
                                                 feed_dict = f_dict
                                                 )
@@ -106,8 +102,7 @@ def train(model):
        processed_samples += FLAGS.batch_size
 
     # save the final model
-    # ckpt_path = os.path.join(FLAGS.ckpt_path, 'model_final.ckpt')
-    ckpt_path = './test_model/model_sig_final.ckpt'
+    ckpt_path = os.path.join(FLAGS.ckpt_path, 'model_final.ckpt')
     save_path = saver.save(model.sess, ckpt_path)
         
     print ("Done.")

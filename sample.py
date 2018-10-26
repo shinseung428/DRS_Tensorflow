@@ -3,16 +3,11 @@ import tensorflow as tf
 from config import *
 from SAGAN import *
 
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
-
 FLAGS = tf.app.flags.FLAGS
 def sigmoid(F):
     return 1/(1 + np.exp(-F))
+
 def sample(model):
-    # datareader = DataReader()
-    # images = datareader.prepare_data()
-    # batch_ids = len(images)//FLAGS.batch_size
     
     saver = tf.train.Saver()
     last_ckpt = tf.train.latest_checkpoint(FLAGS.ckpt_path)
@@ -62,7 +57,7 @@ def sample(model):
             max_logit = logits[max_idx]
 
         #calculate F_hat and pass it into sigmoid
-        # set gamma dynamically (80th percentile of F)
+        # set gamma dynamically (95th percentile of F)
         Fs = logits - max_logit - np.log(1 - np.exp(logits - max_logit - FLAGS.epsilon))
         gamma = np.percentile(Fs, FLAGS.gamma_percentile)
         F_hat = Fs - gamma
@@ -79,10 +74,6 @@ def sample(model):
                 accepted_samples.append(sample)
                 counter += 1
 
-            if len(accepted_samples) == 64:
-                img_tile(np.random.randint(0,999), np.array(accepted_samples))
-                accepted_samples = []
-            
     print ("Done.")
 
 
