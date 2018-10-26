@@ -75,7 +75,7 @@ class SAGAN():
         self.d_loss = self.fake_d_loss + self.real_d_loss
         self.g_loss = -tf.reduce_mean(self.fake_logits)
 
-        #cross entropy loss
+        #binary cross entropy loss
         self.sig_d_loss = -tf.reduce_mean(tf.log(self.real_sig_out) + tf.log(1 - self.fake_sig_out))
        
     def generator(self, z, name='generator'):

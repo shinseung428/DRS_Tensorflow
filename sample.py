@@ -25,7 +25,7 @@ def sample(model):
     processed_samples = 0
     while processed_samples < FLAGS.burnin_samples:
         z = np.random.uniform(-1, 1, (FLAGS.batch_size, FLAGS.z_dim))
-        fake_imgs, discrim_logits = model.sess.run([model.fake_img, model.fake_logits],
+        fake_imgs, discrim_logits = model.sess.run([model.fake_img, model.fake_sig_logits],
                                                     feed_dict = {model.z : z}
                                                   )
         logits = model.sess.run(tf.reshape(discrim_logits, [-1]))
@@ -45,9 +45,10 @@ def sample(model):
     print ("Start Sampling...")
     accepted_samples = []
     counter = 0
+    rejected_counter = 0
     while counter < FLAGS.total_samples:
         z = np.random.uniform(-1, 1, (FLAGS.batch_size, FLAGS.z_dim))
-        fake_imgs, discrim_logits = model.sess.run([model.fake_img, model.fake_logits],
+        fake_imgs, discrim_logits = model.sess.run([model.fake_img, model.fake_sig_logits],
                                                     feed_dict = {model.z : z}
                                                    )
         logits = model.sess.run(tf.reshape(discrim_logits, [-1]))

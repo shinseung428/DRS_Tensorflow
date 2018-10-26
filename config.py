@@ -19,7 +19,7 @@ tf.app.flags.DEFINE_string('res_path', 'results',
 
 tf.app.flags.DEFINE_boolean('continue_train', False,
                             """flag to continue training""")
-tf.app.flags.DEFINE_integer('epochs', 10,
+tf.app.flags.DEFINE_integer('epochs', 50,
                             """training number of epochs""")
 tf.app.flags.DEFINE_integer('extra_epochs', 5,
                             """additional training number of epochs""")
