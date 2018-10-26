@@ -1,7 +1,6 @@
 # Discriminator Rejection Sampling Tensorflow
 
 Tensorflow implementation of [Discriminator Rejection Sampling](https://arxiv.org/pdf/1810.06758.pdf)  
-SAGAN is used as a base model.
 
 ## Discriminator Rejection Sampling
 ![pseudocode](./images/pseudocode.png) 
