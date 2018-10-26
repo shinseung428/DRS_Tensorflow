@@ -40,21 +40,3 @@ class DataReader():
             images.append(image)
         return images
     
-    def load_cifar10_batch(self, path):
-        import pickle
-        all_batch = []
-        all_labels = []
-        for batch_id in range(1,6):
-            with open(path + '/data_batch_' + str(batch_id), mode='rb') as file:
-                # note the encoding type is 'latin1'
-                batch = pickle.load(file, encoding='latin1')
-            
-            features = batch['data'].reshape((len(batch['data']), 3, 32, 32)).transpose(0, 2, 3, 1)
-            labels = batch['labels']
-            all_batch.append(features)
-            all_labels.append(labels)
-
-        img_batch = np.concatenate(all_batch, axis=0)
-        label_batch = np.concatenate(all_labels, axis=0)
-        
-        return img_batch, label_batch
