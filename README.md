@@ -21,6 +21,11 @@ For CelebA dataset, 80th percentile value is used for gamma (80th percentile val
 * Tensorflow
 
 ## Results
-![output](./images/output.gif)
+### High acceptance rate
+![high](./images/high.gif)
+
+### Low acceptance rate
+![low](./images/low.gif)
+
 
 
