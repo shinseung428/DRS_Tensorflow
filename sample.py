@@ -8,12 +8,13 @@ def sigmoid(F):
     return 1/(1 + np.exp(-F))
 
 def sample(model):
-    
+    #load saved model
     saver = tf.train.Saver()
     last_ckpt = tf.train.latest_checkpoint(FLAGS.ckpt_path)
     saver.restore(model.sess, last_ckpt)
     print ('Loaded model from %s'%last_ckpt)
 
+    # BurnIn 
     print ('Start BurnIn...')
     max_M = 0.0
     max_logit = 0.0
@@ -36,9 +37,9 @@ def sample(model):
         processed_samples += FLAGS.batch_size
         print("Processing BurnIn...%d/%d"%(processed_samples, FLAGS.burnin_samples))
         
-     
+    
+    # Sample
     print ("Start Sampling...")
-    accepted_samples = []
     counter = 0
     rejected_counter = 0
     while counter < FLAGS.total_samples:
@@ -71,9 +72,9 @@ def sample(model):
                 save_img = cv2.cvtColor(save_img, cv2.COLOR_BGR2RGB)
                 cv2.imwrite("./sampled_results/result_%d_%.4f.jpg"%(counter, acceptance_prob[idx]), save_img)
                 print ("Sampled : %d/%d"%(counter, FLAGS.total_samples))
-                accepted_samples.append(sample)
                 counter += 1
 
+            
     print ("Done.")
 
 
