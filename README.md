@@ -19,11 +19,10 @@ For CelebA dataset, 80th percentile value is used for gamma (80th percentile val
 * opencv2
 * Tensorflow
 
-## Results
-### High acceptance probability
+## Results with high acceptance probability
 ![high](./images/high.gif)
 
-### Low acceptance probability
+## Results with low acceptance probability
 ![low](./images/low.gif)
 
 
