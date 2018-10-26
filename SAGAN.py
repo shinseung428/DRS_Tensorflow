@@ -30,9 +30,10 @@ class SAGAN():
         
         #set optimizers here
         self.d_optim = tf.train.AdamOptimizer(self.lr, beta1=FLAGS.beta1, beta2=FLAGS.beta2).minimize(self.d_loss, var_list=self.d_vars)
-        self.sig_d_optim = tf.train.AdamOptimizer(self.lr, beta1=FLAGS.beta1, beta2=FLAGS.beta2).minimize(self.sig_d_loss, var_list=self.sig_d_vars)
         self.g_optim = tf.train.AdamOptimizer(self.lr, beta1=FLAGS.beta1, beta2=FLAGS.beta2).minimize(self.g_loss, var_list=self.g_vars)
-    
+        self.sig_d_optim = tf.train.AdamOptimizer(self.lr, beta1=FLAGS.beta1, beta2=FLAGS.beta2).minimize(self.sig_d_loss, var_list=self.sig_d_vars)
+
+        
     def build_model(self):
         self.z = tf.placeholder(tf.float32, [FLAGS.batch_size, FLAGS.z_dim], name='z')
         self.images = tf.placeholder(tf.float32, [FLAGS.batch_size, FLAGS.img_hw, FLAGS.img_hw, 3], name='input_image')
@@ -62,18 +63,17 @@ class SAGAN():
             return tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=logits, labels=y))
         
 
-        #vanilla gan loss
-        self.fake_d_loss = calc_loss(self.fake_logits, 0)
-        self.real_d_loss = calc_loss(self.real_logits, 1)
-        self.d_loss = self.fake_d_loss + self.real_d_loss
-        self.g_loss = calc_loss(self.fake_logits, 1)
-
+        # # vanilla gan loss
+        # self.fake_d_loss = calc_loss(self.fake_logits, 0)
+        # self.real_d_loss = calc_loss(self.real_logits, 1)
+        # self.d_loss = self.fake_d_loss + self.real_d_loss
+        # self.g_loss = calc_loss(self.fake_logits, 1)
 
         #hinge loss
-        #self.fake_d_loss = tf.reduce_mean(tf.nn.relu(1.0 + self.fake_logits))
-        #self.real_d_loss = tf.reduce_mean(tf.nn.relu(1.0 - self.real_logits))
-        #self.d_loss = self.fake_d_loss + self.real_d_loss
-        #self.g_loss = -tf.reduce_mean(self.fake_logits)
+        self.fake_d_loss = tf.reduce_mean(tf.nn.relu(1.0 + self.fake_logits))
+        self.real_d_loss = tf.reduce_mean(tf.nn.relu(1.0 - self.real_logits))
+        self.d_loss = self.fake_d_loss + self.real_d_loss
+        self.g_loss = -tf.reduce_mean(self.fake_logits)
 
         #cross entropy loss
         self.sig_d_loss = -tf.reduce_mean(tf.log(self.real_sig_out) + tf.log(1 - self.fake_sig_out))
@@ -145,9 +145,9 @@ class SAGAN():
             nets.append(net)
            
             with tf.variable_scope('sig_layer', reuse=reuse) as scope:
-                sig_logit = fc(tf.reshape(net, [FLAGS.batch_size, -1]), 512, name='fc_layer1')
-                sig_logit = fc(sig_logit, 256, name='fc_layer2')
-                sig_logit = fc(sig_logit, 1, name='fc_layer3')
+                sig_layer = fc(tf.reshape(net, [FLAGS.batch_size, -1]), 512, name='fc_layer1')
+                sig_layer = fc(sig_layer, 256, name='fc_layer2')
+                sig_logit = fc(sig_layer, 1, name='fc_layer3')
                 sig_out = tf.nn.sigmoid(sig_logit)
 
             net = conv2d(net, 1, kernel=4, stride=1, name="conv_5")

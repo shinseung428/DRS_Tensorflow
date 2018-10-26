@@ -82,6 +82,7 @@ def train(model):
         img_tile(epoch, sample_imgs)
         epoch += 1
 
+
     print ('Train sigmoid layer...')
     processed_samples = 0
     # train extra sigmoid layer using about 100k samples

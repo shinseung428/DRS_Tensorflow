@@ -19,17 +19,17 @@ tf.app.flags.DEFINE_string('res_path', 'results',
 
 tf.app.flags.DEFINE_boolean('continue_train', False,
                             """flag to continue training""")
-tf.app.flags.DEFINE_integer('epochs', 50,
+tf.app.flags.DEFINE_integer('epochs', 10,
                             """training number of epochs""")
 tf.app.flags.DEFINE_integer('extra_epochs', 5,
                             """additional training number of epochs""")
 
 #### Input pipeline
-tf.app.flags.DEFINE_integer('z_dim', 100,
+tf.app.flags.DEFINE_integer('z_dim', 128,
                             """dimension of input z vector""")
 tf.app.flags.DEFINE_integer('img_hw', 64,
                             """Innput image height/width""")
-tf.app.flags.DEFINE_integer('batch_size', 64,
+tf.app.flags.DEFINE_integer('batch_size', 128,
                             """Train batch size""")
 
 
