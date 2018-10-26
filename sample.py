@@ -25,69 +25,63 @@ def sample(model):
     processed_samples = 0
     while processed_samples < FLAGS.burnin_samples:
         z = np.random.uniform(-1, 1, (FLAGS.batch_size, FLAGS.z_dim))
-        # idx = np.random.randint(0, batch_ids)
-        # img_batch = images[idx*FLAGS.batch_size:idx*FLAGS.batch_size+FLAGS.batch_size]
-        # fake_imgs, fake_sig_out, fake_logits, real_sig_out = model.sess.run([model.fake_img,
-        #                                                                      model.fake_sig_out,
-        #                                                                      model.fake_logits,
-        #                                                                      model.real_sig_out],
-        #                                                                      feed_dict = {model.z : z,
-        #                                                                                   model.images : img_batch
-        #                                                                                  }
-        #                                                                     )
-        # logits = model.sess.run(tf.reshape(fake_logits, [-1]))
-        # batch_ratio = real_sig_out/fake_sig_out
-        # max_idx = np.argmax(batch_ratio)
-        # max_ratio = batch_ratio[max_idx]
-
-        
         fake_imgs, discrim_logits = model.sess.run([model.fake_img, model.fake_logits],
                                                     feed_dict = {model.z : z}
-                                                   )
+                                                  )
         logits = model.sess.run(tf.reshape(discrim_logits, [-1]))
+
         batch_ratio = np.exp(logits)
         max_idx = np.argmax(batch_ratio)
         max_ratio = batch_ratio[max_idx]
         
-        
         if max_ratio > max_M:
             max_M = max_ratio
             max_logit = logits[max_idx]
+        
         processed_samples += FLAGS.batch_size
-   
-
+        print("Processing BurnIn...%d/%d"%(processed_samples, FLAGS.burnin_samples))
+        
+     
+    print ("Start Sampling...")
     accepted_samples = []
-    while len(accepted_samples) < FLAGS.total_samples:
+    counter = 0
+    while counter < FLAGS.total_samples:
         z = np.random.uniform(-1, 1, (FLAGS.batch_size, FLAGS.z_dim))
-
         fake_imgs, discrim_logits = model.sess.run([model.fake_img, model.fake_logits],
                                                     feed_dict = {model.z : z}
                                                    )
         logits = model.sess.run(tf.reshape(discrim_logits, [-1]))
 
-        # go through generated images
-        # reject the ones that don't meet the condition
-        for idx, logit in enumerate(logits):
-            M = np.exp(logit)
-            #update max_M if larger M is found
-            if M > max_M:
-                max_M = M
-                max_logit = logit
-                
-            #calculate F and pass it into sigmoid
-            # set gamma dynamically (80th percentile of F)
-            F = logit - max_logit - np.log(1 - np.exp(logit - max_logit - FLAGS.epsilon))
-            F_hat = F - F*FLAGS.gamma_percentile
-            p = sigmoid(F)
-            prob = np.random.uniform(0, 1)
-            if 0.8 < p:
-                save_img = (fake_imgs[idx] + 1)*127.5
+        batch_ratio = np.exp(logits)
+        max_idx = np.argmax(batch_ratio)
+        max_ratio = batch_ratio[max_idx]        
+        #update max_M if larger M is found
+        if max_ratio > max_M:
+            max_M = max_ratio
+            max_logit = logits[max_idx]
+
+        #calculate F_hat and pass it into sigmoid
+        # set gamma dynamically (80th percentile of F)
+        Fs = logits - max_logit - np.log(1 - np.exp(logits - max_logit - FLAGS.epsilon))
+        gamma = np.percentile(Fs, FLAGS.gamma_percentile)
+        F_hat = Fs - gamma
+        acceptance_prob = sigmoid(F_hat)
+        
+        for idx, sample in enumerate(fake_imgs):
+            probability = np.random.uniform(0, 1)
+            print ('prob : %.4f p : %.4f F_hat : %.4f F : %.4f'%(probability, acceptance_prob[idx], F_hat[idx], Fs[idx]))
+            if probability <= acceptance_prob[idx]:
+                save_img = (sample + 1)*127.5
                 save_img = cv2.cvtColor(save_img, cv2.COLOR_BGR2RGB)
-                cv2.imwrite("./sampled_results/result_%02d.jpg"% len(accepted_samples), save_img)
-                print ("Sampled : %d/%d"%(len(accepted_samples), FLAGS.total_samples))
-                print ("maxM : %.4f prob : %.4f p : %.4f F : %.4f F_hat : %.4f"%(max_M, prob, p, F, F_hat))
-                accepted_samples.append(fake_imgs[idx])
-    img_tile(0, np.array(accepted_samples))
+                cv2.imwrite("./sampled_results/result_%d_%.4f.jpg"%(counter, acceptance_prob[idx]), save_img)
+                print ("Sampled : %d/%d"%(counter, FLAGS.total_samples))
+                accepted_samples.append(sample)
+                counter += 1
+
+            if len(accepted_samples) == 64:
+                img_tile(np.random.randint(0,999), np.array(accepted_samples))
+                accepted_samples = []
+            
     print ("Done.")
 
 

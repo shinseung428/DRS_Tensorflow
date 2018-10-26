@@ -21,7 +21,7 @@ tf.app.flags.DEFINE_boolean('continue_train', False,
                             """flag to continue training""")
 tf.app.flags.DEFINE_integer('epochs', 50,
                             """training number of epochs""")
-tf.app.flags.DEFINE_integer('extra_epochs', 10,
+tf.app.flags.DEFINE_integer('extra_epochs', 5,
                             """additional training number of epochs""")
 
 #### Input pipeline
@@ -44,11 +44,11 @@ tf.app.flags.DEFINE_float('beta1', 0.0,
 tf.app.flags.DEFINE_float('beta2', 0.9,
                             """beta2 value for adam""")
 
-tf.app.flags.DEFINE_integer('burnin_samples',10000,
+tf.app.flags.DEFINE_integer('burnin_samples',50000,
                             """Total number of samples to use""")
-tf.app.flags.DEFINE_integer('total_samples', 64,
+tf.app.flags.DEFINE_integer('total_samples', 640,
                             """Total number of samples to gather""")
-tf.app.flags.DEFINE_float('gamma_percentile', 0.1,
+tf.app.flags.DEFINE_float('gamma_percentile', 0.80,
                           """percentile of gamma used in sampling""")
-tf.app.flags.DEFINE_float('epsilon', 1e-7,
+tf.app.flags.DEFINE_float('epsilon', 1e-8,
                           """epsilon used in sampling""")

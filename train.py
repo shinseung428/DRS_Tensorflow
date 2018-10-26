@@ -38,7 +38,6 @@ def train(model):
 
     print ('Start Training...')
     global_step = 0
-    # for _ in range(FLAGS.epochs+FLAGS.extra_epochs):
     while epoch < FLAGS.epochs+FLAGS.extra_epochs:
         step = 0
         for idx in range(batch_ids):
@@ -47,11 +46,11 @@ def train(model):
             if len(img_batch) != FLAGS.batch_size:
                 continue
  
-            #half of the extra epochs will be used to further train the model using smaller learning rate
+            # last few epochs will be used to further train the model using a smaller learning rate
             learning_rate = 1e-7 if epoch > FLAGS.epochs else FLAGS.learning_rate
             f_dict = {model.z : z,
                       model.images : img_batch,
-                      model.lr : learning_rate,
+                      model.lr : learning_rate*4,
                       }
 
             # last few epochs used to train the discriminator(sigmoid layer)
@@ -61,7 +60,12 @@ def train(model):
             writer.add_summary(summary, global_step)
 
             # update generator
+            # smaller learning rate is used for the generator
             for _ in range(2):
+                f_dict = {model.z : z,
+                          model.images : img_batch,
+                          model.lr : learning_rate,
+                         }
                 summary, g_loss, _ = model.sess.run([all_summary, model.g_loss, model.g_optim],
                                                      feed_dict = f_dict
                                                     )
@@ -80,25 +84,29 @@ def train(model):
 
     print ('Train sigmoid layer...')
     processed_samples = 0
-    while processed_samples < 100000:
-        idx = np.random.randint(0, batch_ids)
-        img_batch = images[idx*FLAGS.batch_size:idx*FLAGS.batch_size+FLAGS.batch_size]
-        z = np.random.uniform(-1, 1, (FLAGS.batch_size, FLAGS.z_dim))
+    # train extra sigmoid layer using about 100k samples
+    # logit output before the sigmoid will be used in the sampling process
+    while processed_samples < 10000:
+       idx = np.random.randint(0, batch_ids)
+       img_batch = images[idx*FLAGS.batch_size:idx*FLAGS.batch_size+FLAGS.batch_size]
+       z = np.random.uniform(-1, 1, (FLAGS.batch_size, FLAGS.z_dim))
 
-        #half of the extra epochs will be used to further train the model using smaller learning rate
-        learning_rate = FLAGS.learning_rate
-        f_dict = {model.z : z,
-                  model.images : img_batch,
-                  model.lr : learning_rate,
-                  }
-        summary, sig_d_loss, _ = model.sess.run([all_summary, model.sig_d_loss, model.sig_d_optim],
-                                                feed_dict = f_dict
-                                               )
-        writer.add_summary(summary, global_step)
-        print ("Samples #: %d D_Loss: %.4f"%(processed_samples, sig_d_loss))
-        processed_samples += FLAGS.batch_size
+       learning_rate = FLAGS.learning_rate
+       f_dict = {model.z : z,
+                 model.images : img_batch,
+                 model.lr : learning_rate,
+                 }
+       
+       summary, sig_d_loss, _ = model.sess.run([all_summary, model.sig_d_loss, model.sig_d_optim],
+                                               feed_dict = f_dict
+                                              )
+       writer.add_summary(summary, global_step)
+       print ("Samples #: %d D_Loss: %.4f"%(processed_samples, sig_d_loss))
+       processed_samples += FLAGS.batch_size
 
-    ckpt_path = os.path.join(FLAGS.ckpt_path, 'model_%d.ckpt'%epoch)
+    # save the final model
+    # ckpt_path = os.path.join(FLAGS.ckpt_path, 'model_final.ckpt')
+    ckpt_path = './test_model/model_sig_final.ckpt'
     save_path = saver.save(model.sess, ckpt_path)
         
     print ("Done.")

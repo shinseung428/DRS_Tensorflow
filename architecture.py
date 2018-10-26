@@ -18,7 +18,7 @@ def _l2normalize(v, eps=1e-12):
 NO_OPS = 'NO_OPS'
 def spectral_norm(W, u=None, num_iters=1, update_collection=tf.GraphKeys.UPDATE_OPS, with_sigma=False):
     # Usually num_iters = 1 will be enough
-    W_shape = W.get_shape().as_list()
+    W_shape = W.shape.as_list()
     W_reshaped = tf.reshape(W, [-1, W_shape[-1]])
 
     if u is None:
@@ -63,7 +63,7 @@ def norm(input, norm_type="batch_norm", name="batch_norm"):
     if norm_type == "batch_norm":
         with tf.variable_scope(name) as scope:
             input = tf.identity(input)
-            channels = input.shape.as_list()[3]
+            channels = input.get_shape()[3]
 
             offset = tf.get_variable("offset", [channels], dtype=tf.float32, initializer=tf.constant_initializer(0.0))
             scale = tf.get_variable("scale", [channels], dtype=tf.float32, initializer=tf.random_normal_initializer(1.0, 0.02))
@@ -110,7 +110,7 @@ def conv2d(input, out_filter, kernel=3, stride=2, padding="VALID", pad=0, pad_ty
                             strides=[1, stride, stride, 1],
                             padding=padding
                             )
-        conv = tf.reshape(tf.nn.bias_add(conv, b), tf.shape(conv))
+        conv = tf.reshape(tf.nn.bias_add(conv, b), conv.get_shape())
         return conv
 
 def deconv2d(input, out_filter, out_shape, kernel=3, stride=2, padding="SAME", pad=0, pad_type='constant', spec_norm=False, name="deconv2d"):
@@ -131,7 +131,7 @@ def deconv2d(input, out_filter, out_shape, kernel=3, stride=2, padding="SAME", p
                                         output_shape=out_shape,
                                         strides=[1, stride, stride, 1],
                                         padding=padding)
-        deconv = tf.reshape(tf.nn.bias_add(deconv, b), tf.shape(deconv))
+        deconv = tf.reshape(tf.nn.bias_add(deconv, b), deconv.get_shape())
         return deconv
 
 
